@@ -108,10 +108,12 @@
   @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
   .apps {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
     margin-top: 0.5rem;
   }
+  @media (max-width: 700px) { .apps { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 380px) { .apps { grid-template-columns: 1fr; } }
   .app-check {
     display: flex;
     align-items: center;
