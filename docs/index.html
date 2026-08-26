@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MikroTik TV Allowlist Generator</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #666;
+    --border: #d8d8d8;
+    --card: #f7f7f8;
+    --accent: #2563eb;
+    --accent-fg: #ffffff;
+    --code-bg: #0f172a;
+    --code-fg: #e2e8f0;
+    --ok: #15803d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12141a;
+      --fg: #e8e8ea;
+      --muted: #9aa0aa;
+      --border: #2c303a;
+      --card: #1a1d24;
+      --accent: #5b8cff;
+      --accent-fg: #0b0d12;
+      --code-bg: #05070c;
+      --code-fg: #d8e0ee;
+      --ok: #4ade80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 5rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 0.25rem;
+  }
+  .sub {
+    color: var(--muted);
+    margin: 0 0 2rem;
+    font-size: 0.95rem;
+  }
+  section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  section h2 {
+    font-size: 1rem;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0.9rem 0 0.3rem;
+  }
+  label:first-of-type { margin-top: 0; }
+  .hint {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 0.15rem;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+  }
+  textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+  .apps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .app-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.7rem;
+    background: var(--bg);
+  }
+  .app-check.disabled { opacity: 0.55; }
+  .app-check input { margin: 0; }
+  .app-check .name { font-weight: 500; }
+  .app-check .note { display: block; font-size: 0.75rem; color: var(--muted); }
+  button {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.1rem;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { filter: brightness(1.08); }
+  button.secondary {
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    font-weight: 500;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+  }
+  .output { display: none; }
+  .output.show { display: block; }
+  .out-block { margin-bottom: 1.5rem; }
+  .out-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+  }
+  .out-head h3 { font-size: 0.9rem; margin: 0; }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .copied { color: var(--ok); font-size: 0.8rem; margin-left: 0.5rem; opacity: 0; transition: opacity 0.15s; }
+  .copied.show { opacity: 1; }
+  .note-box {
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem;
+    margin-bottom: 1rem;
+  }
+  footer { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 2rem; }
+  footer a { color: inherit; }
+  #status { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>MikroTik TV Allowlist Generator</h1>
+  <p class="sub">Restrict a VLAN's outbound access to a curated set of streaming/update domains instead of opening full internet. Fill this in, paste the generated commands into your router.</p>
+
+  <section>
+    <h2><span class="step-num">1</span>Choose domain lists</h2>
+    <div id="apps" class="apps">
+      <div class="note-box" id="apps-loading">Loading domain lists from the repo&hellip;</div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="step-num">2</span>Router-specific settings</h2>
+    <div class="row">
+      <div>
+        <label>Repo (owner/name)
+          <span class="hint">Change this if you forked the repo.</span>
+        </label>
+        <input type="text" id="repo" value="nmadd57/mikrotik-tv-allowlist">
+      </div>
+      <div>
+        <label>Branch</label>
+        <input type="text" id="branch" value="master">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Device address-list name
+          <span class="hint">Firewall address-list containing the TV(s) this policy applies to.</span>
+        </label>
+        <input type="text" id="deviceList" value="vlan99-internet-allowed">
+      </div>
+      <div>
+        <label>Domain address-list name
+          <span class="hint">Populated automatically from DNS lookups.</span>
+        </label>
+        <input type="text" id="domainList" value="tv-streaming-allowed">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>WAN interface list
+          <span class="hint">Check <code>/interface/list/print</code> on your router.</span>
+        </label>
+        <input type="text" id="wanList" value="WAN">
+      </div>
+      <div>
+        <label>Sync script name</label>
+        <input type="text" id="scriptName" value="sync-tv-domains">
+      </div>
+    </div>
+    <label>Scheduler interval
+      <span class="hint">How often the router re-fetches the domain lists and re-resolves them.</span>
+    </label>
+    <input type="text" id="interval" value="6h">
+    <label>Device IP addresses
+      <span class="hint">One per line &mdash; the TVs/devices this policy should apply to.</span>
+    </label>
+    <textarea id="deviceIPs" rows="3" placeholder="192.168.99.5">192.168.99.5</textarea>
+  </section>
+
+  <section>
+    <h2><span class="step-num">3</span>Generate</h2>
+    <button id="generate">Generate scripts</button>
+    <div id="status"></div>
+  </section>
+
+  <div id="output" class="output">
+    <section>
+      <div class="out-head">
+        <h3>A &mdash; Domain sync script (upload as a file, e.g. via WinBox &rarr; Files &rarr; drag &amp; drop)</h3>
+        <span><button class="secondary" data-copy="out-sync">Copy</button><span class="copied" id="copied-out-sync">Copied</span></span>
+      </div>
+      <div class="note-box">Save this block as a local <code>.rsc</code> file and upload it to the router's file list first (WinBox: Files, or SFTP). Then run the commands in block B to install it.</div>
+      <pre id="out-sync"></pre>
+    </section>
+
+    <section>
+      <div class="out-head">
+        <h3>B &mdash; Install + schedule (paste into terminal after uploading the file from block A)</h3>
+        <span><button class="secondary" data-copy="out-install">Copy</button><span class="copied" id="copied-out-install">Copied</span></span>
+      </div>
+      <pre id="out-install"></pre>
+    </section>
+
+    <section>
+      <div class="out-head">
+        <h3>C &mdash; Firewall setup (paste into terminal)</h3>
+        <span><button class="secondary" data-copy="out-firewall">Copy</button><span class="copied" id="copied-out-firewall">Copied</span></span>
+      </div>
+      <div class="note-box">This adds the accept rule at the <strong>end</strong> of the filter chain. You must move it above whatever rule currently blocks this VLAN's outbound traffic &mdash; <code>/ip firewall filter print</code> then <code>/ip firewall filter move</code>.</div>
+      <pre id="out-firewall"></pre>
+    </section>
+  </div>
+
+  <footer>
+    Generated client-side, nothing is sent anywhere. Source: <a href="https://github.com/nmadd57/mikrotik-tv-allowlist">nmadd57/mikrotik-tv-allowlist</a>
+  </footer>
+</main>
+
+<script>
+const REPO_DEFAULT = "nmadd57/mikrotik-tv-allowlist";
+const BRANCH_DEFAULT = "master";
+
+// Fallback list used if the GitHub API can't be reached (rate limit, offline, etc).
+const FALLBACK_APPS = [
+  { file: "netflix", label: "Netflix", note: "" },
+  { file: "disneyplus", label: "Disney+ / Hulu / Max", note: "" },
+  { file: "youtube", label: "YouTube", note: "" },
+  { file: "samsung-update", label: "Samsung update", note: "" },
+  { file: "roku-update", label: "Roku update", note: "Unverified — see README", disabled: true }
+];
+
+let apps = [];
+
+async function loadApps() {
+  const repo = REPO_DEFAULT;
+  const branch = BRANCH_DEFAULT;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/domains?ref=${branch}`);
+    if (!res.ok) throw new Error("api error");
+    const files = await res.json();
+    apps = files
+      .filter(f => f.name.endsWith(".txt"))
+      .map(f => {
+        const file = f.name.replace(/\.txt$/, "");
+        const fallback = FALLBACK_APPS.find(a => a.file === file);
+        return {
+          file,
+          label: fallback ? fallback.label : file,
+          note: fallback ? fallback.note : "",
+          disabled: fallback ? !!fallback.disabled : false
+        };
+      });
+  } catch (e) {
+    apps = FALLBACK_APPS.slice();
+  }
+  renderApps();
+}
+
+function renderApps() {
+  const container = document.getElementById("apps");
+  container.innerHTML = "";
+  apps.forEach(app => {
+    const div = document.createElement("label");
+    div.className = "app-check" + (app.disabled ? " disabled" : "");
+    div.innerHTML = `
+      <input type="checkbox" data-file="${app.file}" ${app.disabled ? "" : "checked"}>
+      <span><span class="name">${app.label}</span>${app.note ? `<span class="note">${app.note}</span>` : ""}</span>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function escRos(str) {
+  // Escape a literal string for embedding inside a RouterOS "..." literal.
+  return str.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function buildSyncScript(cfg) {
+  const appsList = cfg.selectedApps.map(a => `"${a}"`).join("; ");
+  return `# ${cfg.scriptName} — pulls per-app domain allowlists from ${cfg.repo}
+# and rebuilds /ip/dns/static regexp entries feeding the ${cfg.domainList}
+# address-list. Generated by the MikroTik TV Allowlist Generator.
+
+:local addressList "${cfg.domainList}"
+:local rawBase "https://raw.githubusercontent.com/${cfg.repo}/${cfg.branch}/domains"
+:local apps {${appsList}}
+
+:foreach app in=$apps do={
+  :local url ($rawBase . "/" . $app . ".txt")
+  :local fname ("gist-" . $app . ".txt")
+
+  :do {
+    /tool fetch url=$url dst-path=$fname output=file check-certificate=yes
+    :delay 1s
+
+    :local content [/file get $fname contents]
+    /file remove $fname
+
+    /ip dns static remove [find where comment~("^gist-sync:" . $app . ":")]
+
+    :local lines {""}
+    :local buf ""
+    :local i 0
+    :while ($i < [:len $content]) do={
+      :local ch [:pick $content $i ($i + 1)]
+      :if ($ch = "\\n") do={
+        :set lines ($lines , $buf)
+        :set buf ""
+      } else={
+        :if ($ch != "\\r") do={ :set buf ($buf . $ch) }
+      }
+      :set i ($i + 1)
+    }
+    :if ([:len $buf] > 0) do={ :set lines ($lines , $buf) }
+
+    :foreach line in=$lines do={
+      :if ([:len $line] > 0 && [:pick $line 0 1] != "#") do={
+        :local dom $line
+        :local label "gist"
+        :local sep [:find $line "|"]
+        :if ($sep != nil) do={
+          :set dom [:pick $line 0 $sep]
+          :set label [:pick $line ($sep + 1) [:len $line]]
+        }
+
+        :local escDom ""
+        :local j 0
+        :while ($j < [:len $dom]) do={
+          :local c [:pick $dom $j ($j + 1)]
+          :if ($c = ".") do={ :set escDom ($escDom . "\\\\.") } else={ :set escDom ($escDom . $c) }
+          :set j ($j + 1)
+        }
+        :local rx ("^(.*\\\\.)?" . $escDom . "\\$")
+
+        /ip dns static add regexp=$rx type=FWD address-list=$addressList comment=("gist-sync:" . $app . ":" . $label)
+      }
+    }
+    :log info ("${cfg.scriptName}: refreshed " . $app . " from repo")
+  } on-error={
+    :log warning ("${cfg.scriptName}: fetch/parse failed for " . $app . ", leaving its existing entries in place")
+  }
+}
+`;
+}
+
+function buildInstallCommands(cfg) {
+  return `# Run these after uploading the file from block A (named "${cfg.scriptName}.rsc") to the router.
+
+# Make sure the DNS cache is big enough - a full cache silently drops new
+# entries and breaks the regexp -> address-list mechanism.
+:if ([/ip dns get cache-size] < 8192) do={
+  /ip dns set cache-size=8192
+  /ip dns cache flush
+}
+
+:local src [/file get "${cfg.scriptName}.rsc" contents]
+/system script add name=${cfg.scriptName} policy=read,write,test,ftp source=$src
+/system script run ${cfg.scriptName}
+
+/system scheduler add name=${cfg.scriptName} interval=${cfg.interval} on-event="/system script run ${cfg.scriptName}" comment="Refresh TV streaming domain allowlist from repo"
+`;
+}
+
+function buildFirewallCommands(cfg) {
+  const ipLines = cfg.deviceIPs.map(ip =>
+    `/ip firewall address-list add list=${cfg.deviceList} address=${ip}`
+  ).join("\n");
+  return `${ipLines}
+
+/ip firewall filter add chain=forward action=accept src-address-list=${cfg.deviceList} dst-address-list=${cfg.domainList} out-interface-list=${cfg.wanList} comment="TV streaming domains allowed outbound"
+
+# --- move the rule above now ---
+# /ip firewall filter print where chain=forward
+# /ip firewall filter move [find comment="TV streaming domains allowed outbound"] destination=<id-of-your-block-rule>
+
+# Optional: if a device also needs to reach something internal (e.g. a Plex
+# server) without going through the domain allowlist, add a rule like:
+# /ip firewall filter add chain=forward action=accept src-address-list=${cfg.deviceList} dst-address=<internal-ip> comment="internal service (not via WAN)"
+`;
+}
+
+document.getElementById("generate").addEventListener("click", () => {
+  const selectedApps = Array.from(document.querySelectorAll('#apps input[type="checkbox"]:checked'))
+    .map(cb => cb.dataset.file);
+
+  const statusEl = document.getElementById("status");
+  if (selectedApps.length === 0) {
+    statusEl.textContent = "Select at least one domain list.";
+    return;
+  }
+  statusEl.textContent = "";
+
+  const cfg = {
+    repo: document.getElementById("repo").value.trim() || REPO_DEFAULT,
+    branch: document.getElementById("branch").value.trim() || BRANCH_DEFAULT,
+    deviceList: document.getElementById("deviceList").value.trim(),
+    domainList: document.getElementById("domainList").value.trim(),
+    wanList: document.getElementById("wanList").value.trim(),
+    scriptName: document.getElementById("scriptName").value.trim(),
+    interval: document.getElementById("interval").value.trim(),
+    deviceIPs: document.getElementById("deviceIPs").value.split("\n").map(s => s.trim()).filter(Boolean),
+    selectedApps
+  };
+
+  document.getElementById("out-sync").textContent = buildSyncScript(cfg);
+  document.getElementById("out-install").textContent = buildInstallCommands(cfg);
+  document.getElementById("out-firewall").textContent = buildFirewallCommands(cfg);
+  document.getElementById("output").classList.add("show");
+  document.getElementById("output").scrollIntoView({ behavior: "smooth" });
+});
+
+document.querySelectorAll("[data-copy]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.copy;
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const flag = document.getElementById("copied-" + id);
+      flag.classList.add("show");
+      setTimeout(() => flag.classList.remove("show"), 1200);
+    });
+  });
+});
+
+loadApps();
+</script>
+</body>
+</html>
