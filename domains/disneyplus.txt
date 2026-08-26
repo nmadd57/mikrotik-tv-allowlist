@@ -1,0 +1,10 @@
+# Disney+/Hulu/Max domain allowlist
+disneyplus.com|Disney+
+disney-plus.net|Disney+
+bamgrid.com|Disney+ (BAM tech backend)
+dssott.com|Disney+ (streaming backend)
+hulu.com|Hulu
+hulustream.com|Hulu (CDN)
+max.com|Max (HBO)
+hbomax.com|Max (HBO)
+hbo.com|Max (HBO)

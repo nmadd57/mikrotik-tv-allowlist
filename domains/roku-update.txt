@@ -1,0 +1,8 @@
+# Roku TV update/app-store domain allowlist
+# NOT wired into the default sync script (see scripts/sync-tv-domains.rsc).
+# Community sources disagree on whether cloudservices.roku.com is
+# update-infra or telemetry, and Roku doesn't cleanly separate the two
+# under distinct hostnames the way Samsung's OTN service does. Recommended
+# approach: packet-capture a real Roku's firmware-check traffic once one is
+# in-policy, then populate this file with the confirmed hostname(s).
+roku.com|Roku update/services (unverified, broad - not used by default)

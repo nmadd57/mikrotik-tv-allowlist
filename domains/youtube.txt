@@ -1,0 +1,6 @@
+# YouTube domain allowlist
+youtube.com|YouTube
+googlevideo.com|YouTube (video CDN)
+ytimg.com|YouTube (images)
+ggpht.com|YouTube (images)
+youtubei.googleapis.com|YouTube (API)

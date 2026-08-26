@@ -1,0 +1,7 @@
+# Netflix domain allowlist
+netflix.com|Netflix
+nflxvideo.net|Netflix (CDN)
+nflximg.net|Netflix (images)
+nflxso.net|Netflix
+nflxext.com|Netflix
+netflix.net|Netflix

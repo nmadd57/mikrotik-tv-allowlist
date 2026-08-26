@@ -1,0 +1,5 @@
+# Samsung TV update/app-store domain allowlist
+samsungcloudsolution.com|Samsung update
+samsungcloudsolution.net|Samsung update
+samsungotn.net|Samsung update (OTN firmware)
+samsungapps.com|Samsung app store
