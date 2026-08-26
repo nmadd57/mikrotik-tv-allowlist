@@ -122,14 +122,15 @@
     border-radius: 6px;
     padding: 0.5rem 0.7rem;
     background: var(--bg);
-    min-height: 3.4rem;
+    height: 4.1rem;
     min-width: 0;
+    overflow: hidden;
   }
   .app-check.disabled { opacity: 0.55; }
   .app-check input { margin: 0; flex-shrink: 0; }
   .app-check .text { min-width: 0; }
-  .app-check .name { font-weight: 500; display: block; overflow-wrap: anywhere; }
-  .app-check .note { display: block; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+  .app-check .name { font-weight: 500; display: block; overflow-wrap: anywhere; line-height: 1.3; }
+  .app-check .note { display: block; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; line-height: 1.3; margin-top: 0.15rem; }
   button {
     background: var(--accent);
     color: var(--accent-fg);
