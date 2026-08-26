@@ -121,11 +121,13 @@
     padding: 0.5rem 0.7rem;
     background: var(--bg);
     min-height: 3.4rem;
+    min-width: 0;
   }
   .app-check.disabled { opacity: 0.55; }
-  .app-check input { margin: 0; }
-  .app-check .name { font-weight: 500; }
-  .app-check .note { display: block; font-size: 0.75rem; color: var(--muted); }
+  .app-check input { margin: 0; flex-shrink: 0; }
+  .app-check .text { min-width: 0; }
+  .app-check .name { font-weight: 500; display: block; overflow-wrap: anywhere; }
+  .app-check .note { display: block; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
   button {
     background: var(--accent);
     color: var(--accent-fg);
@@ -334,7 +336,7 @@ function renderApps() {
     div.className = "app-check" + (app.disabled ? " disabled" : "");
     div.innerHTML = `
       <input type="checkbox" data-file="${app.file}" ${app.disabled ? "" : "checked"}>
-      <span><span class="name">${app.label}</span>${app.note ? `<span class="note">${app.note}</span>` : ""}</span>
+      <span class="text"><span class="name">${app.label}</span>${app.note ? `<span class="note">${app.note}</span>` : ""}</span>
     `;
     container.appendChild(div);
   });
