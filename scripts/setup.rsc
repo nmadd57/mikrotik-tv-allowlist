@@ -4,7 +4,7 @@
 # the firewall wiring, which depends on your existing rule layout.
 #
 # CUSTOMIZE before running:
-:local rawBase "https://raw.githubusercontent.com/<OWNER>/<REPO>/main"
+:local rawBase "https://raw.githubusercontent.com/nmadd57/mikrotik-tv-allowlist/main"
 :local syncScriptUrl ($rawBase . "/scripts/sync-tv-domains.rsc")
 :local scriptName "sync-tv-domains"
 :local schedulerInterval "6h"

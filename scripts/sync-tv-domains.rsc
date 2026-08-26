@@ -6,7 +6,7 @@
 # (or paste this whole script into /system script, run once, and schedule).
 
 :local addressList "tv-streaming-allowed"
-:local rawBase "https://raw.githubusercontent.com/<OWNER>/<REPO>/main/domains"
+:local rawBase "https://raw.githubusercontent.com/nmadd57/mikrotik-tv-allowlist/main/domains"
 
 # Add/remove entries here to match which domains/*.txt files you want synced.
 :local apps {"netflix"; "disneyplus"; "youtube"; "samsung-update"}
