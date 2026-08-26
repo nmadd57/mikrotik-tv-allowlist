@@ -263,9 +263,12 @@
     <section>
       <div class="out-head">
         <h3>A &mdash; Domain sync script (upload as a file, e.g. via WinBox &rarr; Files &rarr; drag &amp; drop)</h3>
-        <span><button class="secondary" data-copy="out-sync">Copy</button><span class="copied" id="copied-out-sync">Copied</span></span>
+        <span>
+          <button class="secondary" id="download-sync">Download .rsc</button>
+          <button class="secondary" data-copy="out-sync">Copy</button><span class="copied" id="copied-out-sync">Copied</span>
+        </span>
       </div>
-      <div class="note-box">Save this block as a local <code>.rsc</code> file and upload it to the router's file list first (WinBox: Files, or SFTP). Then run the commands in block B to install it.</div>
+      <div class="note-box">Download this as a <code>.rsc</code> file (or copy/paste it into one) and upload it to the router's file list (WinBox: Files, or SFTP). Then run the commands in block B to install it.</div>
       <pre id="out-sync"></pre>
     </section>
 
@@ -505,6 +508,23 @@ document.getElementById("generate").addEventListener("click", () => {
   document.getElementById("out-firewall").textContent = buildFirewallCommands(cfg);
   document.getElementById("output").classList.add("show");
   document.getElementById("output").scrollIntoView({ behavior: "smooth" });
+
+  currentScriptName = cfg.scriptName || "sync-tv-domains";
+});
+
+let currentScriptName = "sync-tv-domains";
+document.getElementById("download-sync").addEventListener("click", () => {
+  const text = document.getElementById("out-sync").textContent;
+  if (!text) return;
+  const blob = new Blob([text], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${currentScriptName}.rsc`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 });
 
 document.querySelectorAll("[data-copy]").forEach(btn => {
