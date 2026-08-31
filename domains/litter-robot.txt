@@ -1,0 +1,16 @@
+# Litter-Robot (Whisker) cloud domain allowlist
+# Sourced from pylitterbot (the reverse-engineered client library behind the
+# Home Assistant Litter-Robot integration) - the actual endpoints the
+# official app/cloud service uses, not a guess:
+# https://github.com/natekspencer/pylitterbot/blob/main/pylitterbot/const.py
+# https://github.com/natekspencer/pylitterbot/blob/main/pylitterbot/robot/litterrobot3.py
+# https://github.com/natekspencer/pylitterbot/blob/main/pylitterbot/robot/litterrobot4.py
+# https://github.com/natekspencer/pylitterbot/blob/main/pylitterbot/robot/litterrobot5.py
+# https://github.com/natekspencer/pylitterbot/blob/main/pylitterbot/robot/feederrobot.py
+v2.api.whisker.iothings.site|Whisker API (LR3 / account)
+lr4.iothings.site|Litter-Robot 4 GraphQL + realtime
+ub.prod.iothings.site|Litter-Robot 5 REST API
+cognito.hasura.iothings.site|Feeder-Robot GraphQL
+8s1fz54a82.execute-api.us-east-1.amazonaws.com|LR3 websocket (AWS API Gateway)
+42nk7qrhdg.execute-api.us-east-1.amazonaws.com|Feeder-Robot commands (AWS API Gateway)
+cognito-idp.us-east-1.amazonaws.com|AWS Cognito auth
